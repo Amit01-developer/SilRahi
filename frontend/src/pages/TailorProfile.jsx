@@ -22,6 +22,7 @@ export function TailorProfile({ tailor, setPage }) {
     deliveryDate: ""
   });
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export function TailorProfile({ tailor, setPage }) {
     }
     setLoading(true);
     setMessage("");
+    setError("");
     try {
       const payload = new FormData();
       payload.append("customerName", form.customerName);
@@ -66,7 +68,7 @@ export function TailorProfile({ tailor, setPage }) {
       await api.createBooking(payload);
       setMessage("Booking created. You can track it from your dashboard.");
     } catch (err) {
-      setMessage(err.message);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -180,6 +182,7 @@ export function TailorProfile({ tailor, setPage }) {
             <span className="inline-flex items-center gap-2 font-semibold text-rosewood"><ImagePlus size={18} /> {referenceImage ? referenceImage.name : "Upload cloth/design reference"}</span>
             <input type="file" accept="image/*" className="hidden" onChange={(event) => setReferenceImage(event.target.files?.[0] || null)} />
           </label>
+          {error && <p className="rounded-xl bg-red-50 border border-red-200 p-3 font-semibold text-red-700">{error}</p>}
           {message && <p className="rounded-xl bg-emerald-50 border border-emerald-100 p-3 font-semibold text-emerald-700">{message}</p>}
           <Button disabled={loading} className="w-full">{loading ? "Booking..." : "Book Now"}</Button>
         </form>
