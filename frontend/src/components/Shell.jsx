@@ -88,12 +88,12 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
                       ? "border-neutral-700 bg-neutral-800 text-white hover:bg-neutral-700"
                       : "border-pink-200 bg-white text-rosewood hover:bg-pink-50"}`}
                 >
-                  Customer
+                  {t.roleCustomer}
                 </button>
                 <button onClick={() => openAuth?.("tailor") || setPage("auth")}
                   className="rounded-lg bg-rosewood text-white px-4 py-2 text-sm font-semibold hover:bg-pink-800 transition-colors shadow-sm"
                 >
-                  Tailor
+                  {t.roleTailor}
                 </button>
               </div>
             )}
@@ -147,12 +147,12 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
                     className={`flex-1 rounded-lg border py-2.5 text-sm font-semibold
                       ${isLanding ? "border-neutral-700 bg-neutral-800 text-white" : "border-pink-200 text-rosewood"}`}
                   >
-                    Customer
+                    {t.roleCustomer}
                   </button>
                   <button onClick={() => { openAuth?.("tailor"); setMobileOpen(false); }}
                     className="flex-1 rounded-lg bg-rosewood text-white py-2.5 text-sm font-semibold"
                   >
-                    Tailor
+                    {t.roleTailor}
                   </button>
                 </>
               )}
