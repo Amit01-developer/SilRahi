@@ -1,49 +1,14 @@
 import bcrypt from "bcryptjs";
 import express from "express";
-import { z } from "zod";
+import { registerSchema, loginSchema, firebaseLoginSchema } from "../validators/authValidator.js";
 import { auth, db, FieldValue } from "../config/firebase.js";
 import { requireAuth, signAppToken } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
-import { asyncHandler, HttpError } from "../utils/httpError.js";
+import { asyncHandler } from "../utils/httpError.js";
+import { HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
 const ADMIN_EMAILS = new Set(["hacktolearn001@gmail.com", process.env.ADMIN_EMAIL].filter(Boolean).map(normalizeEmail));
-
-const registerSchema = z.object({
-  body: z.object({
-    name: z.string().min(2),
-    email: z.string().email(),
-    password: z.string().min(8),
-    phone: z.string().min(10).max(15),
-    role: z.enum(["customer", "tailor"]),
-    address: z.string().min(3).optional(),
-    location: z
-      .object({
-        lat: z.number().min(-90).max(90),
-        lng: z.number().min(-180).max(180)
-      })
-      .optional()
-  })
-});
-
-const loginSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    password: z.string().min(1),
-    role: z.enum(["customer", "tailor", "admin"]).optional()
-  })
-});
-
-const firebaseLoginSchema = z.object({
-  body: z.object({
-    idToken: z.string().min(10),
-    role: z.enum(["customer", "tailor"]).default("customer")
-  })
-});
-
-function rolesForUser(user = {}) {
-  return [...new Set([...(Array.isArray(user.roles) ? user.roles : []), user.role].filter(Boolean))];
-}
 
 function normalizeEmail(email = "") {
   return String(email).trim().toLowerCase();

@@ -1,4 +1,3 @@
-import { HttpError } from "../utils/httpError.js";
 
 export function validate(schema) {
   return (req, res, next) => {
@@ -9,7 +8,7 @@ export function validate(schema) {
     });
 
     if (!result.success) {
-      return next(new HttpError(400, "Validation failed", result.error.flatten()));
+      return next(result.error);
     }
 
     req.validated = result.data;

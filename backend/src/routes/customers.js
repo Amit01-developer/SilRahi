@@ -1,5 +1,5 @@
 import express from "express";
-import { z } from "zod";
+import { customerSchema } from "../validators/customersValidator.js";
 import { db, FieldValue } from "../config/firebase.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -8,14 +8,7 @@ import { asyncHandler } from "../utils/httpError.js";
 
 const router = express.Router();
 
-const customerSchema = z.object({
-  body: z.object({
-    name: z.string().min(2).optional(),
-    phone: z.string().min(10).max(15).optional(),
-    address: z.string().optional(),
-    location: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).optional()
-  })
-});
+
 
 router.get(
   "/me",

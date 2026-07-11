@@ -1,5 +1,5 @@
 import express from "express";
-import { z } from "zod";
+import { messageSchema } from "../validators/messagesValidator.js";
 import { db, FieldValue } from "../config/firebase.js";
 import { requireAuth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -7,11 +7,7 @@ import { asyncHandler, HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
 
-const messageSchema = z.object({
-  body: z.object({
-    text: z.string().min(1).max(1000)
-  })
-});
+
 
 async function getAllowedBooking(bookingId, user) {
   const bookingDoc = await db.collection("bookings").doc(bookingId).get();

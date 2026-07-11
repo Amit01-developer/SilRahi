@@ -1,5 +1,5 @@
 import express from "express";
-import { z } from "zod";
+import { bookingPayloadSchema, statusSchema, paymentSchema } from "../validators/bookingsValidator.js";
 import { db, FieldValue } from "../config/firebase.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -8,32 +8,7 @@ import { upload, uploadBookingReference } from "../utils/upload.js";
 
 const router = express.Router();
 
-const bookingPayloadSchema = z.object({
-  tailorId: z.string().min(1),
-  customerName: z.string().min(2),
-  serviceType: z.string().min(2),
-  description: z.string().min(3),
-  pickupDeliveryAddress: z.string().optional(),
-  deliveryDate: z.string().min(8),
-  measurements: z.record(z.string()).optional()
-});
 
-const statusSchema = z.object({
-  body: z.object({
-    status: z.enum(["pending", "accepted", "rejected", "in_progress", "ready", "delivered", "cancelled"]),
-    paymentAmount: z.preprocess(
-      (value) => (value === "" || value === undefined || value === null ? undefined : Number(value)),
-      z.number().min(0).optional()
-    )
-  })
-});
-
-const paymentSchema = z.object({
-  body: z.object({
-    method: z.enum(["upi", "cash", "other"]).default("upi"),
-    reference: z.string().max(120).optional()
-  })
-});
 
 function bookingFromDoc(doc) {
   return { id: doc.id, ...doc.data() };

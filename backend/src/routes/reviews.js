@@ -1,5 +1,5 @@
 import express from "express";
-import { z } from "zod";
+import { reviewSchema } from "../validators/reviewsValidator.js";
 import { db, FieldValue } from "../config/firebase.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -7,14 +7,7 @@ import { asyncHandler, HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
 
-const reviewSchema = z.object({
-  body: z.object({
-    tailorId: z.string().min(1),
-    bookingId: z.string().min(1),
-    rating: z.number().int().min(1).max(5),
-    comment: z.string().max(800).optional()
-  })
-});
+
 
 async function refreshRating(tailorId) {
   const snapshot = await db.collection("reviews").where("tailorId", "==", tailorId).get();

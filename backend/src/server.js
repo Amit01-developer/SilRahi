@@ -14,7 +14,7 @@ import customerRoutes from "./routes/customers.js";
 import messageRoutes from "./routes/messages.js";
 import reviewRoutes from "./routes/reviews.js";
 import tailorRoutes from "./routes/tailors.js";
-import { errorHandler, notFound } from "./utils/httpError.js";
+import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
