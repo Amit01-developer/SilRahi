@@ -111,6 +111,7 @@ textarea {
 }
 
 .animate-marquee {
+  width: max-content;
   will-change: transform;
 }
 

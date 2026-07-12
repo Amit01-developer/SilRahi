@@ -552,13 +552,39 @@ export function Landing({ setPage, openAuth }) {
             <SectionLabel text="Testimonials" />
             <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">{t.testimonialsTitle}</h2>
           </div>
-          <div className="overflow-hidden testimonials-mask group">
-            <div className="flex gap-6 px-6 animate-marquee group-hover:[animation-play-state:paused]">
-              {scrollingTestimonials.map((item, i) => (
-                <div key={`${item.avatar}-${i}`} className="flex-shrink-0 w-[360px] sm:w-[400px]">
-                  <TestimonialCard {...item} delay={i < testimonials.length ? i * 100 : 0}/>
-                </div>
-              ))}
+          <div className="overflow-hidden testimonials-mask group px-6">
+            <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
+
+              {/* Original */}
+              <div className="flex gap-6 pr-6">
+                {testimonials.map((item, i) => (
+                  <div
+                    key={`original-${item.avatar}-${i}`}
+                    className="flex-shrink-0 w-[360px] sm:w-[400px]"
+                  >
+                    <TestimonialCard
+                      {...item}
+                      delay={i * 100}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Clone */}
+              <div className="flex gap-6">
+                {testimonials.map((item, i) => (
+                  <div
+                    key={`clone-${item.avatar}-${i}`}
+                    className="flex-shrink-0 w-[360px] sm:w-[400px]"
+                  >
+                    <TestimonialCard
+                      {...item}
+                      delay={0}
+                    />
+                  </div>
+                ))}
+              </div>
+
             </div>
           </div>
         </div>
