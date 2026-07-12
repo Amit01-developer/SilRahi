@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Scissors, Languages, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
@@ -7,6 +7,9 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
   const { user, logout } = useAuth();
   const { lang, t, toggle } = useLang();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close mobile menu whenever the page changes (e.g. via footer/CTA links)
+  useEffect(() => { setMobileOpen(false); }, [currentPage]);
 
   const isLanding = currentPage === "landing";
 
