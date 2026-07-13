@@ -9,6 +9,7 @@ import { StyleAdvisor } from "./pages/StyleAdvisor";
 import { TailorDashboard } from "./pages/TailorDashboard";
 import { TailorMap } from "./pages/TailorMap";
 import { TailorProfile } from "./pages/TailorProfile";
+import {SilrahiPrivacyPage} from "./pages/Privacy"
 
 function dashboardPageForRole(role) {
   if (role === "tailor") return "tailor";
@@ -49,6 +50,7 @@ export default function App() {
     if (page === "customer") return user?.role === "customer" ? <CustomerDashboard setPage={setPage} /> : <AuthPage setPage={setPage} initialRole="customer" />;
     if (page === "tailor") return user?.role === "tailor" ? <TailorDashboard /> : <AuthPage setPage={setPage} initialRole="tailor" />;
     if (page === "admin") return user?.role === "admin" ? <AdminPanel /> : <AuthPage setPage={setPage} initialRole="customer" />;
+    if (page === "privacy") return <SilrahiPrivacyPage setPage={setPage} />;
     return <Landing setPage={setPage} openAuth={openAuth} />;
   }
 
