@@ -235,7 +235,7 @@ function Footer({ setPage }) {
           <p>© 2024 Silrahi. All rights reserved.</p>
           <div className="flex gap-5">
             <a href="#" onClick={() => setPage("privacy")} className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Use</a>
+            <a href="#" onClick={() => {  setPage("terms") }} className="hover:text-white transition-colors">Terms of use</a>
           </div>
         </div>
       </div>
