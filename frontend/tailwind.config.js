@@ -27,7 +27,8 @@ export default {
       animation: {
         "bounce-slow": "bounce 3s infinite",
         "spin-slow": "spin 6s linear infinite",
-        "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite"
+        "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",
+        marquee: "marquee 55s linear infinite",
       },
       backgroundOpacity: {
         8: "0.08",

@@ -99,7 +99,7 @@ function TestimonialCard({ name, role, quote, avatar, delay = 0 }) {
     <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`rounded-2xl bg-white border border-neutral-100 p-5 shadow-sm hover:shadow-md sm:p-6
+      className={`rounded-2xl bg-white border border-neutral-200 p-6 shadow-md hover:shadow-xl sm:p-7
         hover:-translate-y-1 transition-all duration-500
         ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
     >
@@ -246,6 +246,14 @@ function Footer({ setPage }) {
 /* ════════════════ MAIN LANDING ════════════════ */
 export function Landing({ setPage, openAuth }) {
   const { t } = useLang();
+  const testimonials = [
+    { quote: t.t1Quote, name: t.t1Name, role: t.t1Role, avatar: "PS" },
+    { quote: t.t2Quote, name: t.t2Name, role: t.t2Role, avatar: "RD" },
+    { quote: t.t3Quote, name: t.t3Name, role: t.t3Role, avatar: "SM" },
+    { quote: t.t4Quote, name: t.t4Name, role: t.t4Role, avatar: "GK" },
+  ];
+
+  const scrollingTestimonials = [...testimonials, ...testimonials];
   const [heroRef, heroVisible] = useFadeIn();
   const [activeTab, setActiveTab] = useState("customer");
 
@@ -273,7 +281,7 @@ export function Landing({ setPage, openAuth }) {
   ];
 
   const customerMini = [t.cStep1C, t.cStep2C, t.cStep3C, t.cStep4C];
-  const tailorMini   = [t.cStep1T, t.cStep2T, t.cStep3T, t.cStep4T];
+  const tailorMini = [t.cStep1T, t.cStep2T, t.cStep3T, t.cStep4T];
 
   return (
     <main className="overflow-x-hidden bg-[#fafafa]">
@@ -359,9 +367,9 @@ export function Landing({ setPage, openAuth }) {
                 <div className="grid gap-2.5">
                   {[
                     { Icon: ShieldCheck, text: t.feat1 },
-                    { Icon: MapPin,      text: t.feat2 },
-                    { Icon: TrendingUp,  text: t.feat3 },
-                    { Icon: Globe,       text: t.feat4 },
+                    { Icon: MapPin, text: t.feat2 },
+                    { Icon: TrendingUp, text: t.feat3 },
+                    { Icon: Globe, text: t.feat4 },
                   ].map(({ Icon, text }) => (
                     <div key={text} className="flex items-center gap-3 rounded-xl bg-white/12 px-4 py-2.5 text-sm font-medium backdrop-blur-sm hover:bg-white/20 transition-colors cursor-default">
                       <Icon size={15} className="flex-shrink-0 text-pink-200" />
@@ -400,8 +408,8 @@ export function Landing({ setPage, openAuth }) {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <StatCard value={1200} suffix="+" label={t.stat1Label} icon={Scissors} />
             <StatCard value={8500} suffix="+" label={t.stat2Label} icon={CheckCircle2} />
-            <StatCard value={42}   suffix=""  label={t.stat3Label} icon={Globe} />
-            <StatCard value={98}   suffix="%" label={t.stat4Label} icon={Award} />
+            <StatCard value={42} suffix="" label={t.stat3Label} icon={Globe} />
+            <StatCard value={98} suffix="%" label={t.stat4Label} icon={Award} />
           </div>
         </div>
       </section>
@@ -528,12 +536,12 @@ export function Landing({ setPage, openAuth }) {
           <p className="mt-3 text-neutral-500 max-w-md mx-auto">Everything you need, built into one platform.</p>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
-          <FeatureCard icon={ShieldCheck}    title={t.f1Title} text={t.f1Desc} accent="pink"   delay={0}   />
+          <FeatureCard icon={ShieldCheck} title={t.f1Title} text={t.f1Desc} accent="pink" delay={0} />
           <FeatureCard icon={HeartHandshake} title={t.f2Title} text={t.f2Desc} accent="purple" delay={100} />
-          <FeatureCard icon={MapPin}         title={t.f3Title} text={t.f3Desc} accent="amber"  delay={200} />
-          <FeatureCard icon={Star}           title={t.f4Title} text={t.f4Desc} accent="amber"  delay={0}   />
-          <FeatureCard icon={TrendingUp}     title={t.f5Title} text={t.f5Desc} accent="pink"   delay={100} />
-          <FeatureCard icon={Sparkles}       title={t.f6Title} text={t.f6Desc} accent="purple" delay={200} />
+          <FeatureCard icon={MapPin} title={t.f3Title} text={t.f3Desc} accent="amber" delay={200} />
+          <FeatureCard icon={Star} title={t.f4Title} text={t.f4Desc} accent="amber" delay={0} />
+          <FeatureCard icon={TrendingUp} title={t.f5Title} text={t.f5Desc} accent="pink" delay={100} />
+          <FeatureCard icon={Sparkles} title={t.f6Title} text={t.f6Desc} accent="purple" delay={200} />
         </div>
       </section>
 
@@ -544,15 +552,40 @@ export function Landing({ setPage, openAuth }) {
             <SectionLabel text="Testimonials" />
             <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">{t.testimonialsTitle}</h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { quote: t.t1Quote, name: t.t1Name, role: t.t1Role, avatar: "PS" },
-              { quote: t.t2Quote, name: t.t2Name, role: t.t2Role, avatar: "RD" },
-              { quote: t.t3Quote, name: t.t3Name, role: t.t3Role, avatar: "SM" },
-              { quote: t.t4Quote, name: t.t4Name, role: t.t4Role, avatar: "GK" },
-            ].map((item, i) => (
-              <TestimonialCard key={i} {...item} delay={i * 100} />
-            ))}
+          <div className="overflow-hidden testimonials-mask group px-6">
+            <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
+
+              {/* Original */}
+              <div className="flex gap-6 pr-6">
+                {testimonials.map((item, i) => (
+                  <div
+                    key={`original-${item.avatar}-${i}`}
+                    className="flex-shrink-0 w-[360px] sm:w-[400px]"
+                  >
+                    <TestimonialCard
+                      {...item}
+                      delay={i * 100}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Clone */}
+              <div className="flex gap-6">
+                {testimonials.map((item, i) => (
+                  <div
+                    key={`clone-${item.avatar}-${i}`}
+                    className="flex-shrink-0 w-[360px] sm:w-[400px]"
+                  >
+                    <TestimonialCard
+                      {...item}
+                      delay={0}
+                    />
+                  </div>
+                ))}
+              </div>
+
+            </div>
           </div>
         </div>
       </section>
