@@ -18,6 +18,16 @@ const bookingPayloadSchema = z.object({
   measurements: z.record(z.string()).optional()
 });
 
+const bookingUpdateSchema = z.object({
+  body: z.object({
+    customerName: z.string().min(2).optional(),
+    serviceType: z.string().min(2).optional(),
+    description: z.string().min(3).optional(),
+    deliveryDate: z.string().min(8).optional(),
+    measurements: z.record(z.string(), z.string()).optional()
+  })
+});
+
 const statusSchema = z.object({
   body: z.object({
     status: z.enum(["pending", "accepted", "rejected", "in_progress", "ready", "delivered", "cancelled"]),
@@ -253,6 +263,105 @@ router.patch(
     });
     const updated = await doc.ref.get();
     res.json({ booking: bookingFromDoc(updated) });
+  })
+);
+
+router.patch(
+  "/:id",
+  requireAuth,
+  requireRole("customer"),
+  upload.single("referenceImage"),
+  asyncHandler(async (req, res) => {
+    let measurements = req.body.measurements;
+
+    if (typeof measurements === "string") {
+      try {
+        measurements = JSON.parse(measurements || "{}");
+      } catch {
+        throw new HttpError(400, "Measurements must be valid JSON");
+      }
+    }
+
+    const parsed = bookingUpdateSchema.safeParse({
+      body: {
+        ...req.body,
+        measurements
+      }
+    });
+
+    if (!parsed.success) {
+      throw new HttpError(
+        400,
+        "Invalid booking details",
+        parsed.error.flatten()
+      );
+    }
+
+    const data = parsed.data.body;
+    const bookingRef = db.collection("bookings").doc(req.params.id);
+    const bookingDoc = await bookingRef.get();
+
+    if (!bookingDoc.exists) {
+      throw new HttpError(404, "Booking not found");
+    }
+
+    let booking = bookingDoc.data();
+
+    if (booking.customerId !== req.user.uid) {
+      throw new HttpError(
+        403,
+        "Cannot edit another customer's booking"
+      );
+    }
+    if (booking.status !== "pending") {
+      throw new HttpError(
+        400,
+        "Only pending bookings can be edited"
+      );
+    }
+    const updateData = {
+      updatedAt: FieldValue.serverTimestamp()
+    };
+
+    if (data.customerName !== undefined) {
+      updateData.customerName = data.customerName;
+    }
+
+    if (data.serviceType !== undefined) {
+      updateData.serviceType = data.serviceType;
+    }
+
+    if (data.description !== undefined) {
+      updateData.description = data.description;
+    }
+
+    if (data.deliveryDate !== undefined) {
+      updateData.deliveryDate = data.deliveryDate;
+    }
+
+    if (data.measurements !== undefined) {
+      updateData.measurements = data.measurements;
+    }
+
+    if (req.file) {
+      try {
+        updateData.referenceImageUrl = await uploadBookingReference(
+          req.user.uid,
+          req.file
+        );
+
+        updateData.referenceUploadFailed = false;
+      } catch {
+        updateData.referenceUploadFailed = true;
+      }
+    }
+    await bookingRef.update(updateData);
+    const updatedDoc = await bookingRef.get();
+    const updatedBooking = bookingFromDoc(updatedDoc);
+
+    res.json({
+      booking: updatedBooking
+    });
   })
 );
 
