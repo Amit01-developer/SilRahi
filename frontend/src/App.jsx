@@ -11,7 +11,7 @@ import { TailorMap } from "./pages/TailorMap";
 import { TailorProfile } from "./pages/TailorProfile";
 import {SilrahiPrivacyPage} from "./pages/Privacy";
 import {SilrahiTermsPage} from "./pages/TermsPage"
-
+import BackToTop from "./components/BackToTop";
 function dashboardPageForRole(role) {
   if (role === "tailor") return "tailor";
   if (role === "admin") return "admin";
@@ -57,8 +57,12 @@ export default function App() {
   }
 
   return (
+  <>
     <Shell currentPage={page} setPage={setPage} openAuth={openAuth}>
       {renderPage()}
     </Shell>
-  );
+
+    <BackToTop />
+  </>
+);
 }
