@@ -17,6 +17,17 @@ const customerSchema = z.object({
   })
 });
 
+const getTimestampMs = (value) => {
+  if (!value) return 0;
+
+  if (typeof value.toMillis === "function") {
+    return value.toMillis();
+  }
+
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+};
+
 router.get(
   "/me",
   requireAuth,
@@ -40,17 +51,24 @@ router.get(
 
     const bookings = bookingSnapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
-      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+      .sort((a, b) => getTimestampMs(b.createdAt) - getTimestampMs(a.createdAt));
 
     const stats = {
       totalBookings: bookings.length,
-      activeBookings: bookings.filter((booking) => ["pending", "accepted", "in_progress", "ready"].includes(booking.status)).length,
+      activeBookings: bookings.filter((booking) =>
+        ["pending", "accepted", "in_progress", "ready"].includes(booking.status)
+      ).length,
       deliveredBookings: bookings.filter((booking) => booking.status === "delivered").length,
       cancelledBookings: bookings.filter((booking) => booking.status === "cancelled").length
     };
 
-    const customer = customerDoc.exists ? { id: customerDoc.id, ...customerDoc.data() } : null;
-    const customerLocation = isValidCoordinate(customer?.location) ? customer.location : null;
+    const customer = customerDoc.exists
+      ? { id: customerDoc.id, ...customerDoc.data() }
+      : null;
+
+    const customerLocation = isValidCoordinate(customer?.location)
+      ? customer.location
+      : null;
 
     const recommendedTailors = tailorSnapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
@@ -63,7 +81,9 @@ router.get(
             : null
       }))
       .sort((a, b) => {
-        if (a.distanceKm !== null && b.distanceKm !== null) return a.distanceKm - b.distanceKm;
+        if (a.distanceKm !== null && b.distanceKm !== null) {
+          return a.distanceKm - b.distanceKm;
+        }
         if (a.distanceKm !== null) return -1;
         if (b.distanceKm !== null) return 1;
         return Number(b.rating || 0) - Number(a.rating || 0);
@@ -92,6 +112,7 @@ router.put(
       },
       { merge: true }
     );
+
     const doc = await db.collection("customers").doc(req.user.uid).get();
     res.json({ customer: { id: doc.id, ...doc.data() } });
   })
