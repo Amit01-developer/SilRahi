@@ -43,12 +43,17 @@ router.get(
     const [customerDoc, bookingSnapshot, tailorSnapshot] = await Promise.all([
       db.collection("customers").doc(req.user.uid).get(),
       db.collection("bookings").where("customerId", "==", req.user.uid).get(),
-      db.collection("tailors").where("verified", "==", true).get()
+      db.collection("tailors")
+        .where("verified", "==", true)
+        .where("availability", "in", ["available", "busy"])
+        .get()
     ]);
 
     const bookings = bookingSnapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
-      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+      .sort((a, b) =>
+        String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
+      );
 
     const stats = {
       totalBookings: bookings.length,
@@ -73,20 +78,23 @@ router.get(
 
     const recommendedTailors = tailorSnapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
-      .filter((tailor) => tailor.availability !== "offline")
       .map((tailor) => ({
         ...tailor,
         distanceKm:
           customerLocation && isValidCoordinate(tailor.location)
-            ? Number(distanceKm(customerLocation, tailor.location).toFixed(2))
+            ? Number(
+                distanceKm(customerLocation, tailor.location).toFixed(2)
+              )
             : null
       }))
       .sort((a, b) => {
         if (a.distanceKm !== null && b.distanceKm !== null) {
           return a.distanceKm - b.distanceKm;
         }
+
         if (a.distanceKm !== null) return -1;
         if (b.distanceKm !== null) return 1;
+
         return Number(b.rating || 0) - Number(a.rating || 0);
       })
       .slice(0, 4);
@@ -115,7 +123,13 @@ router.put(
     );
 
     const doc = await db.collection("customers").doc(req.user.uid).get();
-    res.json({ customer: { id: doc.id, ...doc.data() } });
+
+    res.json({
+      customer: {
+        id: doc.id,
+        ...doc.data()
+      }
+    });
   })
 );
 
