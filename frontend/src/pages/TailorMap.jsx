@@ -6,6 +6,7 @@ import { Button } from "../components/Button";
 import { Field, inputClass } from "../components/Field";
 import { DEFAULT_LOCATION } from "../constants/location";
 import { api } from "../services/api";
+import CustomSelect from "../components/CustomSelect";
 
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -150,19 +151,27 @@ export function TailorMap({ setPage, setSelectedTailor }) {
           <input className={inputClass} placeholder="blouse, kurti, alteration..." value={filters.service} onChange={(e) => update("service", e.target.value)} />
         </Field>
         <Field label="Availability">
-          <select className={inputClass} value={filters.availability} onChange={(e) => update("availability", e.target.value)}>
-            <option value="available">Available</option>
-            <option value="busy">Busy</option>
-            <option value="all">All active</option>
-          </select>
+          <CustomSelect
+        value={filters.availability}
+        onChange={(value) => update("availability", value)}
+        options={[
+      { value: "available", label: "Available" },
+      { value: "busy", label: "Busy" },
+      { value: "all", label: "All active" },
+      ]}
+      />
         </Field>
         <Field label="Min rating">
-          <select className={inputClass} value={filters.minRating} onChange={(e) => update("minRating", e.target.value)}>
-            <option value="">Any</option>
-            <option value="3">3+</option>
-            <option value="4">4+</option>
-            <option value="4.5">4.5+</option>
-          </select>
+          <CustomSelect
+        value={filters.minRating}
+        onChange={(value) => update("minRating", value)}
+        options={[
+        { value: "", label: "Any" },
+        { value: "3", label: "3+" },
+        { value: "4", label: "4+" },
+        { value: "4.5", label: "4.5+" },
+      ]}
+      />
         </Field>
         <Field label="Max price">
           <input type="number" min="0" className={inputClass} placeholder="1000" value={filters.maxPrice} onChange={(e) => update("maxPrice", e.target.value)} />

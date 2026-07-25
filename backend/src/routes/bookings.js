@@ -1,5 +1,5 @@
 import express from "express";
-import { bookingPayloadSchema, statusSchema, paymentSchema } from "../validators/bookingsValidator.js";
+import { bookingPayloadSchema, statusSchema, paymentSchema, bookingUpdateSchema } from "../validators/bookingsValidator.js";
 import { db, FieldValue } from "../config/firebase.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -7,8 +7,6 @@ import { asyncHandler, HttpError } from "../utils/httpError.js";
 import { upload, uploadBookingReference } from "../utils/upload.js";
 
 const router = express.Router();
-
-
 
 function bookingFromDoc(doc) {
   return { id: doc.id, ...doc.data() };
@@ -228,6 +226,105 @@ router.patch(
     });
     const updated = await doc.ref.get();
     res.json({ booking: bookingFromDoc(updated) });
+  })
+);
+
+router.patch(
+  "/:id",
+  requireAuth,
+  requireRole("customer"),
+  upload.single("referenceImage"),
+  asyncHandler(async (req, res) => {
+    let measurements = req.body.measurements;
+
+    if (typeof measurements === "string") {
+      try {
+        measurements = JSON.parse(measurements || "{}");
+      } catch {
+        throw new HttpError(400, "Measurements must be valid JSON");
+      }
+    }
+
+    const parsed = bookingUpdateSchema.safeParse({
+      body: {
+        ...req.body,
+        measurements
+      }
+    });
+
+    if (!parsed.success) {
+      throw new HttpError(
+        400,
+        "Invalid booking details",
+        parsed.error.flatten()
+      );
+    }
+
+    const data = parsed.data.body;
+    const bookingRef = db.collection("bookings").doc(req.params.id);
+    const bookingDoc = await bookingRef.get();
+
+    if (!bookingDoc.exists) {
+      throw new HttpError(404, "Booking not found");
+    }
+
+    let booking = bookingDoc.data();
+
+    if (booking.customerId !== req.user.uid) {
+      throw new HttpError(
+        403,
+        "Cannot edit another customer's booking"
+      );
+    }
+    if (booking.status !== "pending") {
+      throw new HttpError(
+        400,
+        "Only pending bookings can be edited"
+      );
+    }
+    const updateData = {
+      updatedAt: FieldValue.serverTimestamp()
+    };
+
+    if (data.customerName !== undefined) {
+      updateData.customerName = data.customerName;
+    }
+
+    if (data.serviceType !== undefined) {
+      updateData.serviceType = data.serviceType;
+    }
+
+    if (data.description !== undefined) {
+      updateData.description = data.description;
+    }
+
+    if (data.deliveryDate !== undefined) {
+      updateData.deliveryDate = data.deliveryDate;
+    }
+
+    if (data.measurements !== undefined) {
+      updateData.measurements = data.measurements;
+    }
+
+    if (req.file) {
+      try {
+        updateData.referenceImageUrl = await uploadBookingReference(
+          req.user.uid,
+          req.file
+        );
+
+        updateData.referenceUploadFailed = false;
+      } catch {
+        updateData.referenceUploadFailed = true;
+      }
+    }
+    await bookingRef.update(updateData);
+    const updatedDoc = await bookingRef.get();
+    const updatedBooking = bookingFromDoc(updatedDoc);
+
+    res.json({
+      booking: updatedBooking
+    });
   })
 );
 

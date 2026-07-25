@@ -26,3 +26,13 @@ export const paymentSchema = z.object({
     reference: z.string().max(120).optional()
   })
 });
+
+export const bookingUpdateSchema = z.object({
+  body: z.object({
+    customerName: z.string().min(2).optional(),
+    serviceType: z.string().min(2).optional(),
+    description: z.string().min(3).optional(),
+    deliveryDate: z.string().min(8).optional(),
+    measurements: z.record(z.string(), z.string()).optional()
+  })
+});

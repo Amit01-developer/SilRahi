@@ -15,6 +15,7 @@ Silrahi is a production-ready women-support platform for tailoring and sewing wo
 | Database | Cloud Firestore |
 | Storage | Firebase Storage |
 | Maps | Leaflet + OpenStreetMap |
+| AI | Gemini API + optional Python style advisor service |
 | Security | Helmet, rate limiting, Zod validation, Firebase rules |
 
 ## Features
@@ -28,6 +29,8 @@ Silrahi is a production-ready women-support platform for tailoring and sewing wo
 - Customer location map pin support for nearby tailor discovery
 - Customer search by text, service, availability, radius, location, rating, and price
 - Geolocation and clicked-pin based nearby tailor map with marker popups
+- Ask SilRahi AI style advisor for outfit recommendations from a natural-language fashion prompt
+- AI recommendation card with extracted occasion, season, garment, comfort, fabric, color, price range, and tailor category
 - Booking creation with expected completion date, measurements, and cloth/design reference image
 - Order lifecycle: Pending, Accepted, Rejected, In Progress, Ready, Delivered, Cancelled
 - Customer dashboard: bookings, nearby/recommended tailors, saved tailors, profile settings, cancellation, review after completion
@@ -45,7 +48,7 @@ newSilRahi/
     src/
       config/          Firebase Admin setup
       middleware/      Auth, roles, validation
-      routes/          Auth, users, tailors, bookings, reviews, messages, admin
+      routes/          Auth, AI, users, tailors, bookings, reviews, messages, admin
       utils/           Upload, geo, error helpers
       server.js
   frontend/
@@ -54,6 +57,7 @@ newSilRahi/
       context/         Auth state/session
       pages/           Landing, dashboards, map, profile, admin
       services/        API client
+  SilRahi AI/       Optional Python AI style advisor service
   docs/             Architecture and development guide
   docs/DEPLOYMENT.md
   CONTRIBUTING.md
@@ -82,6 +86,11 @@ FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
 ADMIN_EMAIL=admin@silrahi.com
 ADMIN_PASSWORD=<set-a-strong-admin-password>
 ADMIN_NAME=Silrahi Admin
+AI_STYLE_SERVICE_URL=http://127.0.0.1:8001
+AI_STYLE_SERVICE_TIMEOUT_MS=12000
+AI_STYLE_STRICT=false
+GEMINI_API_KEY=your-gemini-api-key
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
 Create `frontend/.env` from `frontend/.env.example`:
@@ -162,6 +171,7 @@ Base URL: `https://silrahi.onrender.com/api`
 | POST | `/auth/login` | Public |
 | POST | `/auth/firebase` | Public |
 | GET | `/auth/me` | Logged in |
+| POST | `/ai/style-advisor` | Public |
 | GET | `/tailors` | Public verified listings |
 | GET | `/tailors/:id` | Public |
 | GET | `/tailors/me` | Tailor |

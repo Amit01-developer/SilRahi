@@ -44,6 +44,11 @@ export const api = {
       method: "POST",
       body: payload instanceof FormData ? payload : JSON.stringify(payload)
     }),
+  updateBooking: (id, payload) =>
+  request(`/bookings/${id}`, {
+    method: "PATCH",
+    body: payload instanceof FormData ? payload : JSON.stringify(payload)
+  }),
   updateBookingStatus: (id, status, extra = {}) =>
     request(`/bookings/${id}/status`, { method: "PATCH", body: JSON.stringify({ status, ...extra }) }),
   markBookingPaid: (id, payload) =>
