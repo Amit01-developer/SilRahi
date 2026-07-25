@@ -4,7 +4,7 @@ import { db, FieldValue } from "../config/firebase.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { distanceKm, isValidCoordinate } from "../utils/geo.js";
-import { asyncHandler } from "../utils/httpError.js";
+import { asyncHandler, HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
 
@@ -26,6 +26,11 @@ router.get(
   requireRole("customer"),
   asyncHandler(async (req, res) => {
     const doc = await db.collection("customers").doc(req.user.uid).get();
+
+    if (!doc.exists) {
+      throw new HttpError(404, "Customer not found");
+    }
+
     res.json({ customer: { id: doc.id, ...doc.data() } });
   })
 );
