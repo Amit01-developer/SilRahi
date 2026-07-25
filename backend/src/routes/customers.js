@@ -4,7 +4,7 @@ import { db, FieldValue } from "../config/firebase.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { distanceKm, isValidCoordinate } from "../utils/geo.js";
-import { asyncHandler } from "../utils/httpError.js";
+import { asyncHandler, HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
 
@@ -13,7 +13,10 @@ const customerSchema = z.object({
     name: z.string().min(2).optional(),
     phone: z.string().min(10).max(15).optional(),
     address: z.string().optional(),
-    location: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).optional()
+    location: z.object({
+      lat: z.number().min(-90).max(90),
+      lng: z.number().min(-180).max(180)
+    }).optional()
   })
 });
 
@@ -23,6 +26,11 @@ router.get(
   requireRole("customer"),
   asyncHandler(async (req, res) => {
     const doc = await db.collection("customers").doc(req.user.uid).get();
+
+    if (!doc.exists) {
+      throw new HttpError(404, "Customer not found");
+    }
+
     res.json({ customer: { id: doc.id, ...doc.data() } });
   })
 );
@@ -44,13 +52,24 @@ router.get(
 
     const stats = {
       totalBookings: bookings.length,
-      activeBookings: bookings.filter((booking) => ["pending", "accepted", "in_progress", "ready"].includes(booking.status)).length,
-      deliveredBookings: bookings.filter((booking) => booking.status === "delivered").length,
-      cancelledBookings: bookings.filter((booking) => booking.status === "cancelled").length
+      activeBookings: bookings.filter((booking) =>
+        ["pending", "accepted", "in_progress", "ready"].includes(booking.status)
+      ).length,
+      deliveredBookings: bookings.filter(
+        (booking) => booking.status === "delivered"
+      ).length,
+      cancelledBookings: bookings.filter(
+        (booking) => booking.status === "cancelled"
+      ).length
     };
 
-    const customer = customerDoc.exists ? { id: customerDoc.id, ...customerDoc.data() } : null;
-    const customerLocation = isValidCoordinate(customer?.location) ? customer.location : null;
+    const customer = customerDoc.exists
+      ? { id: customerDoc.id, ...customerDoc.data() }
+      : null;
+
+    const customerLocation = isValidCoordinate(customer?.location)
+      ? customer.location
+      : null;
 
     const recommendedTailors = tailorSnapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
@@ -63,7 +82,9 @@ router.get(
             : null
       }))
       .sort((a, b) => {
-        if (a.distanceKm !== null && b.distanceKm !== null) return a.distanceKm - b.distanceKm;
+        if (a.distanceKm !== null && b.distanceKm !== null) {
+          return a.distanceKm - b.distanceKm;
+        }
         if (a.distanceKm !== null) return -1;
         if (b.distanceKm !== null) return 1;
         return Number(b.rating || 0) - Number(a.rating || 0);
@@ -92,6 +113,7 @@ router.put(
       },
       { merge: true }
     );
+
     const doc = await db.collection("customers").doc(req.user.uid).get();
     res.json({ customer: { id: doc.id, ...doc.data() } });
   })
