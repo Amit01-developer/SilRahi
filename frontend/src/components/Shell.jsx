@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Scissors, Languages, Menu, X } from "lucide-react";
+import { Languages, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 
@@ -7,12 +7,12 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
   const { user, logout } = useAuth();
   const { lang, t, toggle } = useLang();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false); // NEW: scroll state
+  const [scrolled, setScrolled] = useState(false);
 
-  // Close mobile menu whenever the page changes (e.g. via footer/CTA links)
+  // Close mobile menu whenever the page changes
   useEffect(() => { setMobileOpen(false); }, [currentPage]);
 
-  // NEW: scroll listener for landing page only
+  // Scroll listener for landing page only
   useEffect(() => {
     if (currentPage !== "landing") {
       setScrolled(false);
@@ -21,7 +21,7 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
     };
-    handleScroll(); // set initial state
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [currentPage]);
@@ -53,7 +53,8 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
           <button onClick={() => setPage("landing")} className="group flex min-w-0 items-center gap-2.5">
             <span className={`grid h-9 w-9 place-items-center rounded-lg transition-colors
               ${isLanding ? "bg-rosewood/30 text-pink-400" : "bg-pink-100 text-rosewood"}`}>
-              <Scissors size={18} />
+              {/* Replace Lucide Scissors with custom SVG logo */}
+              <img src="/favicon.svg" alt="Silrahi" className="h-5 w-5" />
             </span>
             <span className={`truncate text-lg font-extrabold sm:text-xl ${isLanding ? "text-white" : "text-neutral-950"}`}>
               Silrahi
