@@ -7,9 +7,24 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
   const { user, logout } = useAuth();
   const { lang, t, toggle } = useLang();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false); // NEW: scroll state
 
   // Close mobile menu whenever the page changes (e.g. via footer/CTA links)
   useEffect(() => { setMobileOpen(false); }, [currentPage]);
+
+  // NEW: scroll listener for landing page only
+  useEffect(() => {
+    if (currentPage !== "landing") {
+      setScrolled(false);
+      return;
+    }
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+    handleScroll(); // set initial state
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [currentPage]);
 
   const isLanding = currentPage === "landing";
 
@@ -24,9 +39,12 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
 
   return (
     <div className="min-h-screen">
-      <header className={`sticky top-0 z-30 transition-colors duration-300
+      <header className={`z-30 transition-colors duration-300
+        ${isLanding ? "fixed top-0 inset-x-0" : "sticky top-0"}
         ${isLanding
-          ? "border-b border-neutral-800 bg-neutral-950 backdrop-blur-lg"
+          ? scrolled
+            ? "border-b border-neutral-800 bg-neutral-950 backdrop-blur-lg"
+            : "border-b border-transparent bg-transparent"
           : "border-b border-pink-100 bg-white/95 backdrop-blur"}`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:py-3.5">
@@ -125,7 +143,7 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
                   : "border-pink-200 bg-pink-50 text-rosewood hover:bg-pink-100"}`}
             >
               <Languages size={13} />
-              <span>{lang === "en" ? "à¤¹à¤¿à¤‚à¤¦à¥€" : "EN"}</span>
+              <span>{lang === "en" ? "हिंदी" : "EN"}</span>
             </button>
             {links.map(([key, label]) => (
               <button key={key}
