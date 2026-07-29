@@ -20,6 +20,17 @@ const customerSchema = z.object({
   })
 });
 
+const getTimestampMs = (value) => {
+  if (!value) return 0;
+
+  if (typeof value.toMillis === "function") {
+    return value.toMillis();
+  }
+
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+};
+
 router.get(
   "/me",
   requireAuth,
@@ -51,21 +62,30 @@ router.get(
 
     const bookings = bookingSnapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
+
+      .sort((a, b) => getTimestampMs(b.createdAt) - getTimestampMs(a.createdAt));
+
       .sort((a, b) =>
         String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
       );
+
 
     const stats = {
       totalBookings: bookings.length,
       activeBookings: bookings.filter((booking) =>
         ["pending", "accepted", "in_progress", "ready"].includes(booking.status)
       ).length,
+
+      deliveredBookings: bookings.filter((booking) => booking.status === "delivered").length,
+      cancelledBookings: bookings.filter((booking) => booking.status === "cancelled").length
+
       deliveredBookings: bookings.filter(
         (booking) => booking.status === "delivered"
       ).length,
       cancelledBookings: bookings.filter(
         (booking) => booking.status === "cancelled"
       ).length
+
     };
 
     const customer = customerDoc.exists
