@@ -287,7 +287,7 @@ export function Landing({ setPage, openAuth }) {
     <main className="overflow-x-hidden bg-[#fafafa]">
 
       {/* ── HERO ── */}
-      <section className="relative flex min-h-[calc(100svh-96px)] items-center overflow-hidden bg-gradient-to-br from-neutral-950 via-[#1a0a1f] to-[#0f0a1e]">
+      <section className="relative flex min-h-screen items-center overflow-hidden bg-gradient-to-br from-neutral-950 via-[#1a0a1f] to-[#0f0a1e]">
         {/* decorative blobs */}
         <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[700px] rounded-full bg-rosewood/20 blur-[120px]" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-amethyst/15 blur-[80px]" />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Scissors, Languages, Menu, X } from "lucide-react";
+import { Languages, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 
@@ -7,9 +7,24 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
   const { user, logout } = useAuth();
   const { lang, t, toggle } = useLang();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Close mobile menu whenever the page changes (e.g. via footer/CTA links)
+  // Close mobile menu whenever the page changes
   useEffect(() => { setMobileOpen(false); }, [currentPage]);
+
+  // Scroll listener for landing page only
+  useEffect(() => {
+    if (currentPage !== "landing") {
+      setScrolled(false);
+      return;
+    }
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [currentPage]);
 
   const isLanding = currentPage === "landing";
 
@@ -24,9 +39,12 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
 
   return (
     <div className="min-h-screen">
-      <header className={`sticky top-0 z-30 transition-colors duration-300
+      <header className={`z-30 transition-colors duration-300
+        ${isLanding ? "fixed top-0 inset-x-0" : "sticky top-0"}
         ${isLanding
-          ? "border-b border-neutral-800 bg-neutral-950 backdrop-blur-lg"
+          ? scrolled
+            ? "border-b border-neutral-800 bg-neutral-950 backdrop-blur-lg"
+            : "border-b border-transparent bg-transparent"
           : "border-b border-pink-100 bg-white/95 backdrop-blur"}`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:py-3.5">
@@ -35,7 +53,8 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
           <button onClick={() => setPage("landing")} className="group flex min-w-0 items-center gap-2.5">
             <span className={`grid h-9 w-9 place-items-center rounded-lg transition-colors
               ${isLanding ? "bg-rosewood/30 text-pink-400" : "bg-pink-100 text-rosewood"}`}>
-              <Scissors size={18} />
+              {/* Replace Lucide Scissors with custom SVG logo */}
+              <img src="/favicon.svg" alt="Silrahi" className="h-5 w-5" />
             </span>
             <span className={`truncate text-lg font-extrabold sm:text-xl ${isLanding ? "text-white" : "text-neutral-950"}`}>
               Silrahi
@@ -125,7 +144,7 @@ export function Shell({ currentPage, setPage, openAuth, children }) {
                   : "border-pink-200 bg-pink-50 text-rosewood hover:bg-pink-100"}`}
             >
               <Languages size={13} />
-              <span>{lang === "en" ? "à¤¹à¤¿à¤‚à¤¦à¥€" : "EN"}</span>
+              <span>{lang === "en" ? "हिंदी" : "EN"}</span>
             </button>
             {links.map(([key, label]) => (
               <button key={key}
