@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "../components/Button";
 import { useLang } from "../context/LanguageContext";
+import BackToTopButton from "../components/BackToTopButton";
 
 /* ── count-up hook ── */
 function useCountUp(target, duration = 1800) {
@@ -622,6 +623,7 @@ export function Landing({ setPage, openAuth }) {
           </div>
         </div>
       </section>
+      <BackToTopButton/>
 
       {/* ── FOOTER ── */}
       <Footer setPage={setPage} />
